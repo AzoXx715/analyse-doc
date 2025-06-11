@@ -1,0 +1,216 @@
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pipeline d'Analyse Documentaire Multi-Phases - OpenAI</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Pipeline d'Analyse Documentaire Multi-Phases</h1>
+    <div class="subtitle">Système d'indexation vectorielle et vérification croisée - OpenAI</div>
+    <nav>
+      <button class="navtab active" data-tab="upload">📄 Import</button>
+      <button class="navtab" data-tab="pipeline">⚙️ Pipeline</button>
+      <button class="navtab" data-tab="analysis">🔍 Analyse</button>
+      <button class="navtab" data-tab="reports">📊 Rapports</button>
+      <button class="navtab" data-tab="vectors">🧠 Index Vectoriel</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- UPLOAD SECTION -->
+    <section id="tab-upload" class="section active">
+      <div class="config-section">
+        <h4>Configuration OpenAI</h4>
+        <div style="margin-bottom: 1rem;">
+          <label for="openai-key" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+            Clé API OpenAI <span class="status-indicator disconnected" id="api-status"></span>
+          </label>
+          <input 
+            type="password" 
+            id="openai-key" 
+            class="config-input" 
+            placeholder="sk-..." 
+            autocomplete="off"
+          >
+          <div style="font-size: 0.85rem; color: var(--accent2); margin-top: 0.5rem;">
+            Votre clé API est stockée localement et n'est jamais transmise ailleurs qu'à OpenAI
+          </div>
+        </div>
+        <button class="btn btn-secondary" id="test-api">Tester la Connexion</button>
+      </div>
+      
+      <div class="grid grid-2">
+        <div>
+          <h3>Document Principal</h3>
+          <div class="upload-zone" id="main-doc-zone">
+            <div class="upload-icon">📄</div>
+            <div class="upload-text">Déposez votre document principal</div>
+            <div class="upload-subtext">PDF, DOCX, TXT - jusqu'à 300 pages</div>
+            <input type="file" id="main-doc-input" class="file-input" accept=".pdf,.docx,.txt">
+          </div>
+          <div id="main-doc-status"></div>
+        </div>
+        
+        <div>
+          <h3>Documents de Référence</h3>
+          <div class="upload-zone" id="ref-docs-zone">
+            <div class="upload-icon">📚</div>
+            <div class="upload-text">Déposez vos références</div>
+            <div class="upload-subtext">PDF multiples - jusqu'à 200 documents</div>
+            <input type="file" id="ref-docs-input" class="file-input" accept=".pdf" multiple>
+          </div>
+          <div id="ref-docs-status"></div>
+        </div>
+      </div>
+      
+      <div style="text-align: center; margin-top: 2rem;">
+        <button class="btn" id="start-analysis" disabled>Démarrer l'Analyse</button>
+      </div>
+    </section>
+
+    <!-- PIPELINE SECTION -->
+    <section id="tab-pipeline" class="section">
+      <h3>Progression du Pipeline</h3>
+      
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" id="overall-progress"></div>
+        </div>
+        <div style="text-align: center; color: var(--accent2); font-size: 0.9rem;" id="progress-text">
+          En attente de documents...
+        </div>
+      </div>
+      
+      <div class="phase-list">
+        <div class="phase-item" id="phase-1">
+          <div class="phase-status">1</div>
+          <div>
+            <div class="phase-title" style="font-weight: 600;">Extraction et Indexation Initiale</div>
+            <div style="font-size: 0.9rem; color: var(--accent2);">Extraction des entités, concepts et valeurs numériques</div>
+          </div>
+        </div>
+        
+        <div class="phase-item" id="phase-2">
+          <div class="phase-status">2</div>
+          <div>
+            <div class="phase-title" style="font-weight: 600;">Construction des Bases Vectorielles</div>
+            <div style="font-size: 0.9rem; color: var(--accent2);">Génération d'embeddings et indexation sémantique</div>
+          </div>
+        </div>
+        
+        <div class="phase-item" id="phase-3">
+          <div class="phase-status">3</div>
+          <div>
+            <div class="phase-title" style="font-weight: 600;">Analyse Croisée Multi-Sources</div>
+            <div style="font-size: 0.9rem; color: var(--accent2);">Vérification des affirmations contre les références</div>
+          </div>
+        </div>
+        
+        <div class="phase-item" id="phase-4">
+          <div class="phase-status">4</div>
+          <div>
+            <div class="phase-title" style="font-weight: 600;">Validation et Synthèse</div>
+            <div style="font-size: 0.9rem; color: var(--accent2);">Génération du rapport final et scores de confiance</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="log-container" id="pipeline-logs">
+        <div class="log-entry">
+          <span class="log-timestamp">--:--:--</span>
+          <span>Système initialisé. En attente de documents...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANALYSIS SECTION -->
+    <section id="tab-analysis" class="section">
+      <h3>Analyse en Cours</h3>
+      
+      <div class="report-stats">
+        <div class="stat-card">
+          <div class="stat-number" id="entities-count">0</div>
+          <div class="stat-label">Entités Extraites</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="segments-count">0</div>
+          <div class="stat-label">Segments Analysés</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="verifications-count">0</div>
+          <div class="stat-label">Vérifications</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="issues-count">0</div>
+          <div class="stat-label">Problèmes Détectés</div>
+        </div>
+      </div>
+      
+      <div id="current-analysis">
+        <div style="text-align: center; color: var(--accent2); padding: 2rem;">
+          Aucune analyse en cours
+        </div>
+      </div>
+    </section>
+
+    <!-- REPORTS SECTION -->
+    <section id="tab-reports" class="section">
+      <div class="report-header">
+        <h3 class="report-title">Rapport d'Analyse</h3>
+        <div>
+          <button class="btn btn-secondary" id="export-report">Exporter PDF</button>
+        </div>
+      </div>
+      
+      <div id="report-content">
+        <div style="text-align: center; color: var(--accent2); padding: 3rem;">
+          Aucun rapport disponible. Lancez une analyse pour voir les résultats.
+        </div>
+      </div>
+    </section>
+
+    <!-- VECTORS SECTION -->
+    <section id="tab-vectors" class="section">
+      <h3>Index Vectoriel et Navigation Contextuelle</h3>
+      
+      <div class="grid grid-2">
+        <div>
+          <h4>Domaines Identifiés</h4>
+          <div id="domains-list">
+            <div style="color: var(--accent2); padding: 1rem;">
+              Aucun domaine détecté
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <h4>Navigation par Tags</h4>
+          <div id="tags-navigation">
+            <div style="color: var(--accent2); padding: 1rem;">
+              Aucun tag généré
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="margin-top: 2rem;">
+        <h4>Recherche Sémantique</h4>
+        <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+          <input type="text" id="semantic-search" placeholder="Rechercher des concepts, valeurs, relations..." 
+                 style="flex: 1; padding: 0.8rem; border: 1px solid var(--muted); border-radius: var(--radius); background: var(--surface);">
+          <button class="btn" id="search-btn">Rechercher</button>
+        </div>
+        <div id="search-results"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+  <script src="api.js"></script>
+  <script src="ui.js"></script>
+  <script src="pipeline.js"></script>
+</body>
+</html>
